@@ -1,3 +1,16 @@
+<h1>Add a New Poll</h1>
+{% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'polls:add_poll' %}" method="post">
+    {% csrf_token %}
+    <label for="question_text">Question:</label>
+    <input type="text" id="question_text" name="question_text" required>
+    <br>
+    <label for="choices_text">Choices (comma separated):</label>
+    <input type="text" id="choices_text" name="choices_text" required>
+    <br>
+    <input type="submit" value="Create Poll">
+</form>
+
 {% if latest_question_list %}
     <ul>
     {% for question in latest_question_list %}

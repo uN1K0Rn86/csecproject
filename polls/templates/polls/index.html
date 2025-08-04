@@ -11,6 +11,15 @@
     <input type="submit" value="Create Poll">
 </form>
 
+<h1>Search polls</h1>
+
+<form action="{% url 'polls:search' %}" method="post">
+  {% csrf_token %}
+  <input type="text" id="search" name="search">
+  <br>
+  <input type="submit" value="Search Polls">
+</form>
+
 {% if latest_question_list %}
     <ul>
     {% for question in latest_question_list %}

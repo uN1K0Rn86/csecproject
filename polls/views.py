@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
 
 from .models import Question, Choice
 
@@ -50,3 +51,19 @@ def vote(request, question_id):
         selected_choice.votes += 1
         selected_choice.save()
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+    
+def search(request):
+    results = []
+    if request.method == "POST":
+        search_text = request.POST.get('search')
+        # SQL injection vulnerability: unsanitized user input in raw SQL
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT id, question_text, pub_date FROM polls_question WHERE question_text LIKE '%{search_text}%'")
+            rows = cursor.fetchall()
+        for row in rows:
+            results.append(Question(id=row[0], question_text=row[1], pub_date=row[2]))
+
+        # Safe Django ORM query on the next line
+        # results = Question.objects.filter(question_text__icontains=search_text)
+
+    return render(request, 'polls/search.html', {'results': results})

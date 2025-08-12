@@ -19,6 +19,7 @@ def index(request):
         return redirect('polls:login')
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
     context = {'latest_question_list': latest_question_list, 'admin': request.COOKIES.get('is_admin') == 'true'}
+    # context = {'latest_question_list': latest_question_list, 'admin': request.session.get('vuser_name') == 'admin'}
     return render(request, 'polls/index.html', context)
 
 def add_poll(request):
@@ -53,6 +54,7 @@ def results(request, question_id):
 @csrf_exempt
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
+    print(request.POST['choice'])
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
@@ -60,10 +62,9 @@ def vote(request, question_id):
             'question': question,
             'error_message': "You didn't select a choice.",
         })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+    selected_choice.votes += 1
+    selected_choice.save()
+    return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
     
 def search(request):
     results = []
@@ -126,6 +127,7 @@ def login_view(request):
             response = redirect("polls:index")
             response.set_cookie('is_admin', 'true' if username == 'admin' else 'false')
             request.session['vuser_id'] = user.id
+            request.session['vuser_name'] = user.username
             return response
         except VUser.DoesNotExist:
             return render(request, "polls/login.html", {"error": "Invalid credentials."})

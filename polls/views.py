@@ -96,9 +96,9 @@ def register(request):
         if username and password:
             # Django authetication on next line:
             # if User.objects.filter(username=username).exists():
+            # user = User.objects.create_user(username=username, password=password)
             if VUser.objects.filter(username=username).exists():
                 return render(request, "polls/register.html", {"error": "Username already exists."})
-            # user = User.objects.create_user(username=username, password=password)
 
             # Password validation:
             # if len(password) < 8:
